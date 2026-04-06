@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SoumyaFlow | Professional Work Management Suite</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="enterprise.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">PB</div>
+          <div>
+            <p class="eyebrow">Operations Cloud</p>
+            <h1>SoumyaFlow</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Primary">
+          <button class="nav-link active" data-view="overview">Overview</button>
+          <button class="nav-link" data-view="board">Tasks Board</button>
+          <button class="nav-link" data-view="backlog">Backlog</button>
+          <button class="nav-link" data-view="attendance">Attendance</button>
+          <button class="nav-link" data-view="leave">Leave</button>
+          <button class="nav-link" data-view="reports">Reports</button>
+          <button class="nav-link" data-view="admin">Admin</button>
+          <button class="nav-link" data-view="notifications">Notifications</button>
+        </nav>
+
+        <section class="sidebar-card">
+          <p class="eyebrow">Security Posture</p>
+          <h2 id="sidebarRoleLabel">Manager Access</h2>
+          <p id="sidebarSessionLabel">JWT sessions, 2FA, and login history are active for this workspace.</p>
+          <div class="mini-metric">
+            <span>Session timeout</span>
+            <strong id="sidebarTimeoutLabel">30 min</strong>
+          </div>
+          <div class="progress-track compact">
+            <span id="sidebarSecurityBar"></span>
+          </div>
+        </section>
+
+        <section class="sidebar-card">
+          <p class="eyebrow">Upcoming Holiday</p>
+          <h2 id="sidebarHolidayTitle">Ambedkar Jayanti</h2>
+          <p id="sidebarHolidayDate">14 Apr 2026</p>
+          <ul class="pill-list" id="sidebarDepartments"></ul>
+        </section>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Professional Company Task Manager</p>
+            <h2>Unified workspace for tasks, attendance, leave, security, reports, and admin operations</h2>
+          </div>
+          <div class="topbar-right">
+            <div class="identity-chip">
+              <div class="avatar-chip" id="currentUserAvatar">AK</div>
+              <div>
+                <strong id="currentUserName">Aisha Khan</strong>
+                <p id="currentUserMeta">Manager · Operations</p>
+              </div>
+            </div>
+            <span class="status-pill" id="sessionStatusPill">Session Active</span>
+            <div class="topbar-actions">
+              <button class="secondary-button" id="resetDataButton" type="button">Reset Demo Data</button>
+              <button class="secondary-button" id="jumpAttendanceButton" type="button">Add Work Log</button>
+              <button class="secondary-button" id="jumpLeaveButton" type="button">Apply Leave</button>
+              <button class="primary-button" id="openComposerButton" type="button">Create Issue</button>
+              <button class="icon-button" id="logoutButton" type="button">Logout</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="session-gate" id="sessionGate">
+          <div class="session-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Authentication</p>
+                <h3>Secure access to your company workspace</h3>
+              </div>
+              <span class="badge subtle">JWT · 2FA · Role Based Access</span>
+            </div>
+            <p class="hero-copy">
+              Use the demo login to resume the workspace. The app records login history, role-based access,
+              timeout settings, and password actions in local storage.
+            </p>
+            <form id="sessionForm" class="inline-form">
+              <div class="field-grid triple">
+                <label>
+                  <span>User</span>
+                  <select id="sessionUserSelect" name="userId"></select>
+                </label>
+                <label>
+                  <span>Password</span>
+                  <input name="password" type="password" placeholder="Enter any demo password" required />
+                </label>
+                <label>
+                  <span>One-time code</span>
+                  <input name="otp" type="text" inputmode="numeric" maxlength="6" placeholder="Required if 2FA enabled" />
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Login</button>
+                <button class="secondary-button" id="forgotPasswordButton" type="button">Forgot Password</button>
+                <button class="secondary-button" id="changePasswordButton" type="button">Change Password</button>
+              </div>
+            </form>
+            <div id="sessionMessage" class="empty-state inline-message">Session locked. Login to continue.</div>
+          </div>
+        </section>
+
+        <section class="hero-card">
+          <div>
+            <p class="eyebrow">Company Command Center</p>
+            <h3>Track delivery, time, leave, and security from one professional workspace.</h3>
+            <p class="hero-copy">
+              This expanded SoumyaFlow suite combines professional task management with attendance, leave,
+              employee dashboards, company holidays, admin controls, notifications, and export-ready reporting.
+            </p>
+          </div>
+          <div class="hero-panels">
+            <div class="hero-panel">
+              <span>Projects</span>
+              <strong id="heroProjectsCount">0</strong>
+            </div>
+            <div class="hero-panel">
+              <span>Open Issues</span>
+              <strong id="heroOpenCount">0</strong>
+            </div>
+            <div class="hero-panel">
+              <span>Due This Week</span>
+              <strong id="heroDueCount">0</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="filters-card" id="taskTools">
+          <div class="filter-group search-group">
+            <label for="searchInput">Search task records</label>
+            <input id="searchInput" type="search" placeholder="Search by issue, assignee, project, label, or comment" />
+          </div>
+          <div class="filter-group">
+            <label for="projectFilter">Project</label>
+            <select id="projectFilter">
+              <option value="all">All projects</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="priorityFilter">Priority</label>
+            <select id="priorityFilter">
+              <option value="all">All priorities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="assigneeFilter">Assignee</label>
+            <select id="assigneeFilter">
+              <option value="all">All assignees</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="statusFilter">Status</label>
+            <select id="statusFilter">
+              <option value="all">All statuses</option>
+              <option value="todo">To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="flash-banner hidden" id="flashBanner"></section>
+
+        <section class="overview-grid view-panel active" data-panel="overview">
+          <div class="stats-grid stats-grid-large">
+            <article class="stat-card accent-a">
+              <p>Today login time</p>
+              <strong id="todayLoginTime">09:12</strong>
+              <span id="todayWorkMode">WFH</span>
+            </article>
+            <article class="stat-card accent-b">
+              <p>Today work hours</p>
+              <strong id="todayWorkHours">0h</strong>
+              <span id="todayBreakTime">Break 0m</span>
+            </article>
+            <article class="stat-card accent-c">
+              <p>Pending tasks</p>
+              <strong id="pendingTaskCount">0</strong>
+              <span id="blockedCaption">0 blocked items</span>
+            </article>
+            <article class="stat-card accent-d">
+              <p>Completed tasks</p>
+              <strong id="completedTaskCount">0</strong>
+              <span id="completionCaption">0 delivered this sprint</span>
+            </article>
+            <article class="stat-card accent-a">
+              <p>Leave balance</p>
+              <strong id="leaveBalanceCount">0</strong>
+              <span id="leaveBalanceCaption">Paid leave remaining</span>
+            </article>
+            <article class="stat-card accent-b">
+              <p>Monthly attendance</p>
+              <strong id="monthlyAttendanceCount">0</strong>
+              <span id="lateLoginStatus">0 late logins</span>
+            </article>
+            <article class="stat-card accent-c">
+              <p>Notifications</p>
+              <strong id="unreadNotificationCount">0</strong>
+              <span id="announcementCaption">Unread alerts</span>
+            </article>
+            <article class="stat-card accent-d">
+              <p>Performance score</p>
+              <strong id="productivityScore">0%</strong>
+              <span id="overtimeStatus">0h overtime</span>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Employee Dashboard</p>
+                  <h3>Weekly hours and work tracker</h3>
+                </div>
+                <span class="badge subtle" id="weeklyHoursTotal">0h</span>
+              </div>
+              <div id="weeklyHoursBars" class="report-bars"></div>
+              <div class="section-subgrid">
+                <div>
+                  <p class="eyebrow">Project Time Tracking</p>
+                  <div id="projectTimeTracking" class="stack-list compact-stack"></div>
+                </div>
+                <div>
+                  <p class="eyebrow">Recent Work Logs</p>
+                  <div id="workLogPreview" class="stack-list compact-stack"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Security Center</p>
+                  <h3>Authentication and session controls</h3>
+                </div>
+                <span class="badge subtle" id="securityBadge">2FA Enabled</span>
+              </div>
+              <div id="securitySummary" class="metric-list"></div>
+              <div class="section-subgrid">
+                <div>
+                  <p class="eyebrow">Login History</p>
+                  <div id="loginHistoryList" class="stack-list compact-stack"></div>
+                </div>
+                <div>
+                  <p class="eyebrow">Attendance Watch</p>
+                  <div id="attendanceWatchList" class="stack-list compact-stack"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Priority Delivery</p>
+                  <h3>Initiatives and reminders</h3>
+                </div>
+                <span class="badge subtle" id="priorityInitiativesCount">0 tracked</span>
+              </div>
+              <div id="priorityInitiatives" class="stack-list"></div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Announcements</p>
+                  <h3>Notifications and holidays</h3>
+                </div>
+                <span class="badge subtle" id="holidayBadge">0 listed</span>
+              </div>
+              <div class="section-subgrid">
+                <div>
+                  <p class="eyebrow">Alerts</p>
+                  <div id="notificationPreview" class="stack-list compact-stack"></div>
+                </div>
+                <div>
+                  <p class="eyebrow">Holiday List</p>
+                  <div id="holidayPreview" class="stack-list compact-stack"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="board-layout view-panel" data-panel="board">
+          <div class="board-column" data-status="todo">
+            <div class="board-column-header">
+              <div>
+                <p class="eyebrow">Queue</p>
+                <h3>To Do</h3>
+              </div>
+              <span class="badge" id="todoCount">0</span>
+            </div>
+            <div class="board-dropzone" id="todoColumn"></div>
+          </div>
+
+          <div class="board-column" data-status="in-progress">
+            <div class="board-column-header">
+              <div>
+                <p class="eyebrow">Execution</p>
+                <h3>In Progress</h3>
+              </div>
+              <span class="badge" id="inProgressCount">0</span>
+            </div>
+            <div class="board-dropzone" id="inProgressColumn"></div>
+          </div>
+
+          <div class="board-column" data-status="review">
+            <div class="board-column-header">
+              <div>
+                <p class="eyebrow">Validation</p>
+                <h3>Review</h3>
+              </div>
+              <span class="badge" id="reviewCount">0</span>
+            </div>
+            <div class="board-dropzone" id="reviewColumn"></div>
+          </div>
+
+          <div class="board-column" data-status="done">
+            <div class="board-column-header">
+              <div>
+                <p class="eyebrow">Delivery</p>
+                <h3>Done</h3>
+              </div>
+              <span class="badge" id="doneCount">0</span>
+            </div>
+            <div class="board-dropzone" id="doneColumn"></div>
+          </div>
+
+          <section class="card board-support-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Task Activity</p>
+                <h3>Comments, reminders, and recurring work</h3>
+              </div>
+              <span class="badge subtle" id="taskOpsCount">0 actions</span>
+            </div>
+            <div class="section-subgrid">
+              <div>
+                <p class="eyebrow">Reminder Queue</p>
+                <div id="reminderQueue" class="stack-list compact-stack"></div>
+              </div>
+              <div>
+                <p class="eyebrow">Recent Comments</p>
+                <div id="taskCommentFeed" class="stack-list compact-stack"></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view-panel" data-panel="backlog">
+          <div class="card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Planning</p>
+                <h3>Backlog and task operations</h3>
+              </div>
+              <span class="badge subtle" id="backlogCount">0 items</span>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Issue</th>
+                    <th>Project</th>
+                    <th>Owner</th>
+                    <th>Priority</th>
+                    <th>Comments</th>
+                    <th>Files</th>
+                    <th>Reminder</th>
+                    <th>Recurring</th>
+                    <th>Status</th>
+                    <th>Due</th>
+                  </tr>
+                </thead>
+                <tbody id="backlogTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view-panel" data-panel="attendance">
+          <div class="stats-grid">
+            <article class="stat-card accent-a">
+              <p>Login time</p>
+              <strong id="attendanceLoginMetric">09:12</strong>
+              <span id="attendanceDateMetric">02 Apr 2026</span>
+            </article>
+            <article class="stat-card accent-b">
+              <p>Logout time</p>
+              <strong id="attendanceLogoutMetric">18:42</strong>
+              <span id="attendanceBreakMetric">Break 45m</span>
+            </article>
+            <article class="stat-card accent-c">
+              <p>Total hours</p>
+              <strong id="attendanceHoursMetric">0h</strong>
+              <span id="attendanceOvertimeMetric">0h overtime</span>
+            </article>
+            <article class="stat-card accent-d">
+              <p>Attendance status</p>
+              <strong id="attendanceStatusMetric">Present</strong>
+              <span id="attendanceLateMetric">On time</span>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Attendance Management</p>
+                  <h3>Login, logout, break, WFH, and daily status</h3>
+                </div>
+                <span class="badge subtle">Auto hours calculation</span>
+              </div>
+              <form id="attendanceForm" class="inline-form">
+                <div class="field-grid">
+                  <label>
+                    <span>Employee</span>
+                    <select name="employeeId" id="attendanceEmployeeSelect"></select>
+                  </label>
+                  <label>
+                    <span>Date</span>
+                    <input name="date" type="date" required />
+                  </label>
+                  <label>
+                    <span>Login time</span>
+                    <input name="loginTime" type="time" required />
+                  </label>
+                  <label>
+                    <span>Logout time</span>
+                    <input name="logoutTime" type="time" required />
+                  </label>
+                  <label>
+                    <span>Break minutes</span>
+                    <input name="breakMinutes" type="number" min="0" max="240" value="45" required />
+                  </label>
+                  <label>
+                    <span>Work mode</span>
+                    <select name="workMode">
+                      <option value="Office">Office</option>
+                      <option value="WFH">WFH</option>
+                      <option value="Hybrid">Hybrid</option>
+                    </select>
+                  </label>
+                </div>
+                <label class="checkbox-row">
+                  <input name="biometricVerified" type="checkbox" />
+                  <span>Biometric verified</span>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">Save Attendance</button>
+                </div>
+              </form>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Employee</th>
+                      <th>Login</th>
+                      <th>Logout</th>
+                      <th>Break</th>
+                      <th>Hours</th>
+                      <th>Late</th>
+                      <th>Half Day</th>
+                      <th>Mode</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attendanceTableBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Work Tracker</p>
+                  <h3>Daily logs and project-wise time tracking</h3>
+                </div>
+                <span class="badge subtle" id="workLogCount">0 logs</span>
+              </div>
+              <form id="workLogForm" class="inline-form">
+                <div class="field-grid">
+                  <label>
+                    <span>Employee</span>
+                    <select name="employeeId" id="workLogEmployeeSelect"></select>
+                  </label>
+                  <label>
+                    <span>Date</span>
+                    <input name="date" type="date" required />
+                  </label>
+                  <label>
+                    <span>Project</span>
+                    <input name="project" type="text" list="projectSuggestions" required />
+                  </label>
+                  <label>
+                    <span>Hours</span>
+                    <input name="hours" type="number" min="0.5" max="12" step="0.5" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Work summary</span>
+                  <textarea name="note" rows="3" maxlength="180" placeholder="Describe the work completed today"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">Add Work Log</button>
+                </div>
+              </form>
+              <div id="workLogList" class="stack-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view-panel" data-panel="leave">
+          <div class="stats-grid">
+            <article class="stat-card accent-a">
+              <p>Sick leave</p>
+              <strong id="sickLeaveBalance">0</strong>
+              <span>Days remaining</span>
+            </article>
+            <article class="stat-card accent-b">
+              <p>Casual leave</p>
+              <strong id="casualLeaveBalance">0</strong>
+              <span>Days remaining</span>
+            </article>
+            <article class="stat-card accent-c">
+              <p>Paid leave</p>
+              <strong id="paidLeaveBalance">0</strong>
+              <span>Days remaining</span>
+            </article>
+            <article class="stat-card accent-d">
+              <p>Pending approvals</p>
+              <strong id="pendingLeaveCount">0</strong>
+              <span>Manager review</span>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Leave Management</p>
+                  <h3>Apply leave and manage approvals</h3>
+                </div>
+                <span class="badge subtle">Sick · Casual · Paid</span>
+              </div>
+              <form id="leaveForm" class="inline-form">
+                <div class="field-grid">
+                  <label>
+                    <span>Employee</span>
+                    <select name="employeeId" id="leaveEmployeeSelect"></select>
+                  </label>
+                  <label>
+                    <span>Leave type</span>
+                    <select name="type">
+                      <option value="Sick">Sick</option>
+                      <option value="Casual">Casual</option>
+                      <option value="Paid">Paid</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>From</span>
+                    <input name="fromDate" type="date" required />
+                  </label>
+                  <label>
+                    <span>To</span>
+                    <input name="toDate" type="date" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Reason</span>
+                  <textarea name="reason" rows="3" maxlength="180" placeholder="Describe the leave request"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">Apply Leave</button>
+                </div>
+              </form>
+              <div>
+                <p class="eyebrow">Pending Approval Queue</p>
+                <div id="pendingLeaveList" class="stack-list"></div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">History</p>
+                  <h3>Leave records and holiday calendar</h3>
+                </div>
+                <span class="badge subtle" id="leaveHistoryCount">0 requests</span>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Type</th>
+                      <th>Dates</th>
+                      <th>Days</th>
+                      <th>Status</th>
+                      <th>Approver</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leaveHistoryBody"></tbody>
+                </table>
+              </div>
+              <div>
+                <p class="eyebrow">Holiday Calendar</p>
+                <div id="holidayList" class="stack-list compact-stack"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="reports-layout view-panel" data-panel="reports">
+          <div class="stats-grid">
+            <article class="stat-card accent-a">
+              <p>Daily report</p>
+              <strong id="dailyReportMetric">0h</strong>
+              <span>Hours logged today</span>
+            </article>
+            <article class="stat-card accent-b">
+              <p>Weekly report</p>
+              <strong id="weeklyReportMetric">0h</strong>
+              <span>Total tracked this week</span>
+            </article>
+            <article class="stat-card accent-c">
+              <p>Attendance rate</p>
+              <strong id="attendanceRateMetric">0%</strong>
+              <span>Current month</span>
+            </article>
+            <article class="stat-card accent-d">
+              <p>Task completion</p>
+              <strong id="taskCompletionMetric">0%</strong>
+              <span>Across all projects</span>
+            </article>
+          </div>
+
+          <section class="card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Exports</p>
+                <h3>Generate leadership-ready reports</h3>
+              </div>
+              <div class="topbar-actions">
+                <button class="secondary-button" id="exportPdfButton" type="button">Export PDF</button>
+                <button class="secondary-button" id="exportExcelButton" type="button">Export Excel</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="dashboard-grid">
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Progress</p>
+                  <h3>Status distribution</h3>
+                </div>
+                <span class="badge subtle">Live</span>
+              </div>
+              <div id="statusReport" class="report-bars"></div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Portfolio</p>
+                  <h3>Project health</h3>
+                </div>
+                <span class="badge subtle" id="projectHealthCount">0 projects</span>
+              </div>
+              <div id="projectHealth" class="stack-list"></div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">People Analytics</p>
+                  <h3>Attendance, leave, and performance</h3>
+                </div>
+                <span class="badge subtle" id="teamMemberCount">0 members</span>
+              </div>
+              <div id="teamPerformanceList" class="stack-list"></div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Operational Risk</p>
+                  <h3>Blocked work and leave overlap</h3>
+                </div>
+                <span class="badge subtle" id="riskCount">0 issues</span>
+              </div>
+              <div id="riskList" class="stack-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view-panel" data-panel="admin">
+          <div class="admin-grid">
+            <article class="admin-tile">
+              <p>Users</p>
+              <strong id="adminUserCount">0</strong>
+            </article>
+            <article class="admin-tile">
+              <p>Departments</p>
+              <strong id="adminDepartmentCount">0</strong>
+            </article>
+            <article class="admin-tile">
+              <p>Projects</p>
+              <strong id="adminProjectCount">0</strong>
+            </article>
+            <article class="admin-tile">
+              <p>Tasks</p>
+              <strong id="adminTaskCount">0</strong>
+            </article>
+            <article class="admin-tile">
+              <p>Holidays</p>
+              <strong id="adminHolidayCount">0</strong>
+            </article>
+            <article class="admin-tile">
+              <p>Leaves</p>
+              <strong id="adminLeaveCount">0</strong>
+            </article>
+            <article class="admin-tile">
+              <p>Reports</p>
+              <strong id="adminReportCount">0</strong>
+            </article>
+            <article class="admin-tile">
+              <p>Attendance</p>
+              <strong id="adminAttendanceCount">0</strong>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Admin Panel</p>
+                  <h3>User directory and role management</h3>
+                </div>
+                <span class="badge subtle">Admin · Manager · Employee · HR</span>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Department</th>
+                      <th>Status</th>
+                      <th>Attendance</th>
+                      <th>Leave Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody id="userTableBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Security Settings</p>
+                  <h3>Session timeout, JWT, password flow, and 2FA</h3>
+                </div>
+                <span class="badge subtle">Policy Controls</span>
+              </div>
+              <form id="securitySettingsForm" class="inline-form">
+                <div class="field-grid">
+                  <label>
+                    <span>Session timeout (minutes)</span>
+                    <input id="securityTimeoutInput" name="sessionTimeoutMinutes" type="number" min="5" max="180" />
+                  </label>
+                  <label class="checkbox-row inline-check">
+                    <input id="securityJwtCheckbox" name="jwtEnabled" type="checkbox" />
+                    <span>JWT authentication</span>
+                  </label>
+                  <label class="checkbox-row inline-check">
+                    <input id="securityTwoFactorCheckbox" name="requireTwoFactor" type="checkbox" />
+                    <span>Two-factor authentication</span>
+                  </label>
+                  <label class="checkbox-row inline-check">
+                    <input id="securityForgotCheckbox" name="forgotPasswordEnabled" type="checkbox" />
+                    <span>Forgot password flow</span>
+                  </label>
+                </div>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">Save Security Settings</button>
+                </div>
+              </form>
+              <div id="adminSecurityList" class="stack-list compact-stack"></div>
+            </section>
+
+            <section class="card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Announcements</p>
+                  <h3>Notify the company from admin</h3>
+                </div>
+                <span class="badge subtle">Email-style alerts</span>
+              </div>
+              <form id="announcementForm" class="inline-form">
+                <div class="field-grid">
+                  <label>
+                    <span>Audience</span>
+                    <select name="audience">
+                      <option value="All">All Employees</option>
+                      <option value="Managers">Managers</option>
+                      <option value="Engineering">Engineering</option>
+                      <option value="HR">HR</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Announcement title</span>
+                    <input name="title" type="text" maxlength="80" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Message</span>
+                  <textarea name="message" rows="4" maxlength="220" placeholder="Share updates, approvals, or company-wide notices"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">Send Announcement</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="view-panel" data-panel="notifications">
+          <section class="card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Notification Center</p>
+                <h3>Assignments, reminders, approvals, announcements, and security alerts</h3>
+              </div>
+              <div class="topbar-actions">
+                <span class="badge subtle" id="notificationsCount">0 items</span>
+                <button class="secondary-button" id="markAllReadButton" type="button">Mark All Read</button>
+              </div>
+            </div>
+            <div id="notificationsList" class="stack-list"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <footer class="app-footer">
+      <p>SoumyaFlow Workspace Suite</p>
+      <div class="footer-links">
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Service</a>
+      </div>
+    </footer>
+
+    <dialog class="composer" id="composer">
+      <form id="issueForm" class="composer-form" method="dialog">
+        <div class="composer-header">
+          <div>
+            <p class="eyebrow">Create New Task</p>
+            <h3>Add work with reminders, comments, and attachments</h3>
+          </div>
+          <button class="icon-button" id="closeComposerButton" type="button" aria-label="Close composer">x</button>
+        </div>
+
+        <div class="composer-grid">
+          <label>
+            <span>Issue title</span>
+            <input name="title" type="text" required maxlength="90" placeholder="Build employee approval workflow" />
+          </label>
+          <label>
+            <span>Project</span>
+            <input name="project" type="text" list="projectSuggestions" required maxlength="40" placeholder="Enterprise Platform" />
+          </label>
+          <label>
+            <span>Assignee</span>
+            <select name="assignee" id="issueAssigneeSelect"></select>
+          </label>
+          <label>
+            <span>Priority</span>
+            <select name="priority" required>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </label>
+          <label>
+            <span>Issue type</span>
+            <select name="type" required>
+              <option value="Story">Story</option>
+              <option value="Task">Task</option>
+              <option value="Bug">Bug</option>
+              <option value="Epic">Epic</option>
+            </select>
+          </label>
+          <label>
+            <span>Status</span>
+            <select name="status" required>
+              <option value="todo">To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="done">Done</option>
+            </select>
+          </label>
+          <label>
+            <span>Story points</span>
+            <input name="points" type="number" min="1" max="21" value="5" required />
+          </label>
+          <label>
+            <span>Due date</span>
+            <input name="dueDate" type="date" required />
+          </label>
+          <label>
+            <span>Reminder date</span>
+            <input name="reminderAt" type="datetime-local" />
+          </label>
+          <label class="checkbox-row inline-check">
+            <input name="recurring" type="checkbox" />
+            <span>Recurring task</span>
+          </label>
+        </div>
+
+        <label class="full-width">
+          <span>Description</span>
+          <textarea
+            name="description"
+            rows="4"
+            maxlength="220"
+            placeholder="Add enough detail so your team can pick this up confidently."
+          ></textarea>
+        </label>
+
+        <label class="full-width">
+          <span>Initial comment</span>
+          <textarea name="initialComment" rows="3" maxlength="140" placeholder="Add the first task comment for the assignee."></textarea>
+        </label>
+
+        <div class="composer-grid">
+          <label>
+            <span>Labels</span>
+            <input name="labels" type="text" maxlength="120" placeholder="sprint, finance, api" />
+          </label>
+          <label>
+            <span>Task files</span>
+            <input name="attachments" type="file" multiple />
+          </label>
+        </div>
+
+        <label class="checkbox-row">
+          <input name="blocked" type="checkbox" />
+          <span>Mark as blocked or high risk</span>
+        </label>
+
+        <div class="composer-actions">
+          <button class="secondary-button" id="cancelComposerButton" type="button">Cancel</button>
+          <button class="primary-button" type="submit">Create Issue</button>
+        </div>
+      </form>
+    </dialog>
+
+    <datalist id="projectSuggestions"></datalist>
+
+    <script src="suite.js"></script>
+  </body>
+</html>
