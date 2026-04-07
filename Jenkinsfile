@@ -24,7 +24,7 @@ pipeline {
 
         stage('Run New Container') {
             steps {
-                sh 'docker run -d -p 3000:3000 --name hr-portal-frontend hr-portal-frontend:latest'
+                sh 'docker run -d -p 3000:80 --name hr-portal-frontend hr-portal-frontend:latest'
             }
         }
 
