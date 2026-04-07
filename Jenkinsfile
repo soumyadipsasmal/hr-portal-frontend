@@ -3,11 +3,11 @@ pipeline {
 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git 'https://github.com/soumyadipsasmal/hr-portal-frontend.git'
-            }
-        }
+        // stage('Clone Code') {
+        //     steps {
+        //         git 'https://github.com/soumyadipsasmal/hr-portal-frontend.git'
+        //     }
+        // }
 
         stage('Build Docker Image') {
             steps {
